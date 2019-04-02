@@ -35,19 +35,19 @@ class ColorThresholds:
     def apply_r_thresh(self, img, thresh = (0, 255)):
         r_img = img[:,:,0]
         binary_img = np.zeros_like(r_img)
-        binary_img[ (r_img > thresh[0]) & (r_img <= thresh[1]) ] = 1
+        binary_img[ (r_img >= thresh[0]) & (r_img <= thresh[1]) ] = 1
         return binary_img
     
     def apply_g_thresh(self, img, thresh = (0, 255)):
         g_img = img[:,:,1]
         binary_img = np.zeros_like(g_img)
-        binary_img[ (g_img > thresh[0]) & (g_img <= thresh[1]) ] = 1
+        binary_img[ (g_img >= thresh[0]) & (g_img <= thresh[1]) ] = 1
         return binary_img        
 
     def apply_b_thresh(self, img, thresh = (0, 255)):
         b_img = img[:,:,2]
         binary_img = np.zeros_like(b_img)
-        binary_img[ (b_img > thresh[0]) & (b_img <= thresh[1]) ] = 1
+        binary_img[ (b_img >= thresh[0]) & (b_img <= thresh[1]) ] = 1
         return binary_img  
     
     # Apply Combined RGB Thresholding
@@ -61,21 +61,24 @@ class ColorThresholds:
     
     # Thresholding individual HSL Color Channels
     def apply_h_thresh(self, img, thresh = (0, 255)):
-        h_img = img[:,:,0]
+        hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+        h_img = hls[:,:,0]
         binary_img = np.zeros_like(h_img)
-        binary_img[ (h_img > thresh[0]) & (h_img <= thresh[1]) ] = 1
+        binary_img[ (h_img >= thresh[0]) & (h_img <= thresh[1]) ] = 1
         return binary_img
     
     def apply_l_thresh(self, img, thresh = (0, 255)):
-        l_img = img[:,:,1]
+        hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+        l_img = hls[:,:,1]
         binary_img = np.zeros_like(l_img)
-        binary_img[ (l_img > thresh[0]) & (l_img <= thresh[1]) ] = 1
+        binary_img[ (l_img >= thresh[0]) & (l_img <= thresh[1]) ] = 1
         return binary_img
     
     def apply_s_thresh(self, img, thresh = (0, 255)):
-        s_img = img[:,:,2]
+        hls = cv2.cvtColor(img, cv2.COLOR_RGB2HLS)
+        s_img = hls[:,:,2]
         binary_img = np.zeros_like(s_img)
-        binary_img[ (s_img > thresh[0]) & (s_img <= thresh[1]) ] = 1
+        binary_img[ (s_img >= thresh[0]) & (s_img <= thresh[1]) ] = 1
         return binary_img
     
     # Apply Combined HLS Thresholding
