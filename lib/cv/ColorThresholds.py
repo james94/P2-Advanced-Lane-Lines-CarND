@@ -96,7 +96,7 @@ class ColorThresholds:
         """
         f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24,9))
         f.tight_layout()
-        ax1.imshow(undist_img)
+        ax1.imshow(undist_img, cmap = 'gray')
         ax1.set_title(undist_img_title, fontsize=50)
         ax2.imshow(binary_img, cmap = 'gray')
         ax2.set_title(thresh_img_title, fontsize=50)
