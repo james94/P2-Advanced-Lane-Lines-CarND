@@ -1,0 +1,220 @@
+import matplotlib.image as mpimg
+import matplotlib.pyplot as plt
+import numpy as np
+import cv2
+
+# Prerequisite: Have applied camera calibration, thresholding and perspective
+    # transform to a road image, results in a binary warped image where lane lines
+    # stand out
+    
+# LaneLineDetection takes in a binary image and uses Histogram Peaks, 
+# Sliding Window Search and Search from Prior to decide which pixels 
+# are part of the lines, which belong to left line and which belong to right line. 
+# LaneLineDetection then fits a polynomial to each lane line and gives the user
+# the option to display it
+
+class LaneLineDetection:
+    def __init__(self):
+        """
+            LaneLineDetection uses the sliding window method to find all our pixels
+            So, the constructor initially sets the hyperparameters for the sliding
+            window, but these values can be customized before fitting the 
+            polynomial to the line by first calling 'setup_sw_hyperparameters()' 
+            method
+        """
+        # Sliding Window Base Hyperparameters
+        # Number of Sliding Windows
+        self.nwindows_m = 9
+        # Width of the windows +/- margin
+        self.margin_m = 100
+        # Minimum number of pixels found to recenter window
+        self.minpix_m = 50
+        
+    # Histogram Peaks
+        
+    def histogram_peaks(self, binary_warped):
+        """
+            With this histogram, the pixel values are added up along each column 
+            in the lower half of the binary image. Pixels are either 0 or 1, so 
+            the two most prominent peaks are a good indicator of the x-pos of the
+            base of the lane lines. With this info, we can determine where the 
+            lane lines are.
+        """
+        # Grabs only the bottom half of the image
+        # Why? Lane lines are likely to be vertical nearest to the car
+        bottom_half = binary_warped[binary_warped.shape[0]//2:,:]
+        
+        # Histogram is the sum of pixel values along each column in the image
+        # i.e. the highest areas of vertical lines should be larger values
+        histogram = np.sum(bottom_half, axis = 0)
+        
+        return histogram
+    
+    def visualize_hist(self, histogram):
+        """
+            Visualize resulting historgram from histogram_peaks() method
+        """
+        plt.plot(histogram)
+        
+    def split_histogram(self, histogram):
+        """
+            Split the histogram into two sides, one for each lane line
+        """
+        # Find the peak of the left and right halves of the histogram
+        # These will be the starting point for the left and right lines
+        self.midpoint_m = np.int(histogram.shape[0]//2)
+        self.leftx_base_m = np.argmax(histogram[:midpoint])
+        self.rightx_base_m = np.argmax(histogram[midpoint:]) + midpoint
+    
+    # Sliding Window
+    
+    def setup_sw_hyperparameters(self, nwindows, margin, minpix):
+        """
+            Optional: Set a few hyperparamters for our sliding windows, so they are
+            set up to iterate across the binary activations in the image. 
+        """
+        # Hyperparameters
+        # Choose the number of sliding windows
+        self.nwindows_m = nwindows
+        # Set the width of the windows +/- margin
+        self.margin_m = margin
+        # Set minimum number of pixels found to recenter window
+        self.minpix_m = minpix
+    
+    def setup_sw(self, binary_warped):
+        """
+            Set up sliding windows
+        """
+        # Set height of windows - based on nwindows above and image shape
+        window_height = np.int(binary_warped.shape[0]//self.nwindows_m)
+        # Identify x and y positions of all nonzero (i.e. activated) pixels in image
+        self.nonzero_m = binary_warped.nonzero()
+        self.nonzeroy_m = np.array(nonzero[0])
+        self.nonzerox_m = np.array(nonzero[1])
+        # Current positions to be updated later for each window in nwindows
+        self.leftx_current_m = self.leftx_base_m
+        self.rightx_current_m = self.rightx_base_m
+        # Create empty lists to receive left and right lane pixel indices
+        self.left_lane_inds_m = []
+        self.right_lane_inds_m = []
+    
+    def track_curvature(self, binary_warped):
+        """
+            Prerequisite: Set what the windows look like and have a starting point
+            Loop through nwindows to track curvature. The given window slides
+            left or right if it finds the mean position of activated pixels within
+            the window have shifted.
+        """
+        # Create a class member output image to draw on and visualize result
+        out_img = np.dstack((binary_warped, binary_warped, binary_warped))
+        # Step through the windows one by one
+        for window in range(self.nwindows_m):
+            # Identify window boundaries in x and y (and right and left)
+            win_y_low = binary_warped.shape[0] - (window+1)*window_height
+            win_y_high = binary_warped.shape[0] - window*window_height
+            # Find the four below boundaries of the window
+            win_xleft_low = self.leftx_current_m - margin
+            win_xleft_high = self.leftx_current_m + margin
+            win_xright_low = self.rightx_current_m - margin
+            win_xright_high = self.rightx_current_m + margin
+            
+            # Draw the window boundaries on the visualization image
+            cv2.rectangle(out_img, (win_xleft_low, win_y_low), 
+                          (win_xleft_high, win_y_high), (0, 255, 0), 2)
+            cv2.rectangle(out_img, (win_xright_low, win_y_low),
+                          (win_xright_high, win_y_high), (0, 255, 0), 2)
+            
+            # Identifies the nonzero pixels in x and y within the window
+            good_left_inds = ((self.nonzeroy_m >= win_y_low) & 
+                              (self.nonzeroy_m < win_y_high) & 
+                              (self.nonzerox_m >= win_xleft_low) & 
+                              (self.nonzerox_m < win_xleft_high)).nonzero()[0]
+            
+            good_right_inds = ((self.nonzeroy_m >= win_y_low) &
+                               (self.nonzeroy_m < win_y_high) &
+                               (self.nonzerox_m >= win_xright_low) &
+                               (self.nonzerox_m < win_xright_high)).nonzero()[0]
+    
+            # Append these indices to the lists
+            self.left_lane_inds_m.append(good_left_inds)
+            self.right_lane_inds_m.append(good_right_inds)
+            
+            # If the number of pixels found > minpix pixels, recenter next window
+            # `rightx_current` or `leftx_current` on their mean position
+            if len(good_left_inds) > self.minpix_m:
+                self.leftx_current_m = 
+                    np.int(np.mean(self.nonzerox_m[good_left_inds]))
+            if len(good_right_inds) > self.minpix_m:
+                self.rightx_current_m = 
+                    np.int(np.mean(self.nonzerox_m[good_right_inds]))
+         
+        # Concatenate arrays of indices (previously was a list of lists of pixels)
+        try:
+            self.left_lane_inds_m = np.concatenate(self.left_lane_inds_m)
+            self.right_lane_inds_m = np.concatenate(self.right_lane_inds_m)
+        except ValueError:
+            # Avoids error if the above isn't implemented fully
+            pass
+        
+        # Extract left and right line pixel positions
+        self.leftx_m = self.nonzerox_m[self.left_lane_inds_m]
+        self.lefty_m = self.nonzeroy_m[self.left_lane_inds_m]
+        self.rightx_m = self.nonzerox_m[self.right_lane_inds_m]
+        self.righty_m = self.nonzeroy_m[self.right_lane_inds_m]
+        
+        return out_img
+
+    def find_lane_pixels(self, binary_warped):
+        """
+            Uses Sliding Window method to find all pixels belonging to each line
+        """
+        histogram = self.histogram_peaks(binary_warped)
+        self.split_histogram(histogram)
+        self.setup_sw(binary_warped)
+        return self.track_curvature(binary_warped)
+    
+    def fit_polynomial(self, binary_warped):
+        """
+            Fits a polynomial to the line
+        """
+        # Find our lane pixels
+        out_img = self.find_lane_pixels(binary_warped)
+        
+        # Fit a second order polynomial to each line using `np.polyfit`
+        left_fit = np.polyfit(lefty, leftx, 2)
+        right_fit = np.polyfit(righty, rightx, 2)
+        
+        # Generate x and y values for plotting
+        ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0])
+        try:
+            left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+            right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+        except TypeError:
+            # Avoids an error if `left_fit` and `right_fit` 
+            # are still none or incorrect
+            print('The function failed to fit a line!')
+            left_fitx = 1*ploty**2 + 1*ploty
+            right_fitx = 1*ploty**2 + 1*ploty
+            
+        return out_img, ploty, left_fitx, right_fitx
+            
+        
+    def visualize_fit_polynomial(self, out_img, ploty, left_fitx, right_fitx):
+        """
+            Visualize fitting polynomial to each lane line
+        """
+        # Color left lane line red on out_img
+        out_img[self.lefty_m, self.leftx_m] = [255, 0, 0]
+        # Color right lane line blue on out_img
+        out_img[self.righty_m, self.rightx_m] = [0, 0, 255]
+        
+        # Plots the left polynomial on the lane line
+        plt.plot(left_fitx, ploty, color = 'yellow')
+        # Plots the right polynomial on the lane line
+        plt.plot(right_fitx, ploty, color = 'yellow')
+        # Display out_img with sliding windows plotted per lane line as green,
+        # left lane line red, right lane line blue and each polynomial
+        # plotted per lane line as yellow
+        plt.imshow(out_img)
+        
+        
