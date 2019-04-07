@@ -56,6 +56,8 @@ class LaneLineDetection:
         """
         plt.plot(histogram)
         
+    # Sliding Window    
+        
     def split_histogram(self, histogram):
         """
             Split the histogram into two sides, one for each lane line
@@ -63,10 +65,8 @@ class LaneLineDetection:
         # Find the peak of the left and right halves of the histogram
         # These will be the starting point for the left and right lines
         self.midpoint_m = np.int(histogram.shape[0]//2)
-        self.leftx_base_m = np.argmax(histogram[:midpoint])
-        self.rightx_base_m = np.argmax(histogram[midpoint:]) + midpoint
-    
-    # Sliding Window
+        self.leftx_base_m = np.argmax(histogram[:self.midpoint_m])
+        self.rightx_base_m = np.argmax(histogram[self.midpoint_m:]) + self.midpoint_m
     
     def setup_sw_hyperparameters(self, nwindows, margin, minpix):
         """
@@ -86,11 +86,11 @@ class LaneLineDetection:
             Set up sliding windows
         """
         # Set height of windows - based on nwindows above and image shape
-        window_height = np.int(binary_warped.shape[0]//self.nwindows_m)
+        self.window_height_m = np.int(binary_warped.shape[0]//self.nwindows_m)
         # Identify x and y positions of all nonzero (i.e. activated) pixels in image
         self.nonzero_m = binary_warped.nonzero()
-        self.nonzeroy_m = np.array(nonzero[0])
-        self.nonzerox_m = np.array(nonzero[1])
+        self.nonzeroy_m = np.array(self.nonzero_m[0])
+        self.nonzerox_m = np.array(self.nonzero_m[1])
         # Current positions to be updated later for each window in nwindows
         self.leftx_current_m = self.leftx_base_m
         self.rightx_current_m = self.rightx_base_m
@@ -110,13 +110,13 @@ class LaneLineDetection:
         # Step through the windows one by one
         for window in range(self.nwindows_m):
             # Identify window boundaries in x and y (and right and left)
-            win_y_low = binary_warped.shape[0] - (window+1)*window_height
-            win_y_high = binary_warped.shape[0] - window*window_height
+            win_y_low = binary_warped.shape[0] - (window+1)*self.window_height_m
+            win_y_high = binary_warped.shape[0] - window*self.window_height_m
             # Find the four below boundaries of the window
-            win_xleft_low = self.leftx_current_m - margin
-            win_xleft_high = self.leftx_current_m + margin
-            win_xright_low = self.rightx_current_m - margin
-            win_xright_high = self.rightx_current_m + margin
+            win_xleft_low = self.leftx_current_m - self.margin_m
+            win_xleft_high = self.leftx_current_m + self.margin_m
+            win_xright_low = self.rightx_current_m - self.margin_m
+            win_xright_high = self.rightx_current_m + self.margin_m
             
             # Draw the window boundaries on the visualization image
             cv2.rectangle(out_img, (win_xleft_low, win_y_low), 
@@ -142,11 +142,9 @@ class LaneLineDetection:
             # If the number of pixels found > minpix pixels, recenter next window
             # `rightx_current` or `leftx_current` on their mean position
             if len(good_left_inds) > self.minpix_m:
-                self.leftx_current_m = 
-                    np.int(np.mean(self.nonzerox_m[good_left_inds]))
+                self.leftx_current_m = np.int(np.mean(self.nonzerox_m[good_left_inds]))
             if len(good_right_inds) > self.minpix_m:
-                self.rightx_current_m = 
-                    np.int(np.mean(self.nonzerox_m[good_right_inds]))
+                self.rightx_current_m = np.int(np.mean(self.nonzerox_m[good_right_inds]))
          
         # Concatenate arrays of indices (previously was a list of lists of pixels)
         try:
@@ -164,25 +162,24 @@ class LaneLineDetection:
         
         return out_img
 
-    def find_lane_pixels(self, binary_warped):
+    def find_lane_pixels(self, binary_warped, histogram):
         """
-            Uses Sliding Window method to find all pixels belonging to each line
+            Uses Histogram peaks and Sliding Window method to find all pixels
+            belonging to each line (left and right line)
         """
-        histogram = self.histogram_peaks(binary_warped)
         self.split_histogram(histogram)
         self.setup_sw(binary_warped)
         return self.track_curvature(binary_warped)
     
     def fit_polynomial(self, binary_warped):
         """
-            Fits a polynomial to the line
+            Fits a polynomial to the lane line
         """
         # Find our lane pixels
-        out_img = self.find_lane_pixels(binary_warped)
         
         # Fit a second order polynomial to each line using `np.polyfit`
-        left_fit = np.polyfit(lefty, leftx, 2)
-        right_fit = np.polyfit(righty, rightx, 2)
+        left_fit = np.polyfit(self.lefty_m, self.leftx_m, 2)
+        right_fit = np.polyfit(self.righty_m, self.rightx_m, 2)
         
         # Generate x and y values for plotting
         ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0])
@@ -196,12 +193,13 @@ class LaneLineDetection:
             left_fitx = 1*ploty**2 + 1*ploty
             right_fitx = 1*ploty**2 + 1*ploty
             
-        return out_img, ploty, left_fitx, right_fitx
+        return ploty, left_fitx, right_fitx
             
         
     def visualize_fit_polynomial(self, out_img, ploty, left_fitx, right_fitx):
         """
-            Visualize fitting polynomial to each lane line
+            Visualize the sliding windows per line and the fit polynomial per
+            lane line
         """
         # Color left lane line red on out_img
         out_img[self.lefty_m, self.leftx_m] = [255, 0, 0]
@@ -216,5 +214,4 @@ class LaneLineDetection:
         # left lane line red, right lane line blue and each polynomial
         # plotted per lane line as yellow
         plt.imshow(out_img)
-        
         
