@@ -64,9 +64,10 @@ class LaneLineDetection:
         """
         # Find the peak of the left and right halves of the histogram
         # These will be the starting point for the left and right lines
-        self.midpoint_m = np.int(histogram.shape[0]//2)
-        self.leftx_base_m = np.argmax(histogram[:self.midpoint_m])
-        self.rightx_base_m = np.argmax(histogram[self.midpoint_m:]) + self.midpoint_m
+        midpoint = np.int(histogram.shape[0]//2)
+        self.leftx_base_m = np.argmax(histogram[:midpoint])
+        self.rightx_base_m = np.argmax(histogram[midpoint:]) + midpoint
+        return midpoint
     
     def setup_sw_hyperparameters(self, nwindows, margin, minpix):
         """
@@ -88,9 +89,9 @@ class LaneLineDetection:
         # Set height of windows - based on nwindows above and image shape
         self.window_height_m = np.int(binary_warped.shape[0]//self.nwindows_m)
         # Identify x and y positions of all nonzero (i.e. activated) pixels in image
-        self.nonzero_m = binary_warped.nonzero()
-        self.nonzeroy_m = np.array(self.nonzero_m[0])
-        self.nonzerox_m = np.array(self.nonzero_m[1])
+        nonzero = binary_warped.nonzero()
+        self.nonzeroy_m = np.array(nonzero[0])
+        self.nonzerox_m = np.array(nonzero[1])
         # Current positions to be updated later for each window in nwindows
         self.leftx_current_m = self.leftx_base_m
         self.rightx_current_m = self.rightx_base_m
@@ -119,10 +120,8 @@ class LaneLineDetection:
             win_xright_high = self.rightx_current_m + self.margin_m
             
             # Draw the window boundaries on the visualization image
-            cv2.rectangle(out_img, (win_xleft_low, win_y_low), 
-                          (win_xleft_high, win_y_high), (0, 255, 0), 2)
-            cv2.rectangle(out_img, (win_xright_low, win_y_low),
-                          (win_xright_high, win_y_high), (0, 255, 0), 2)
+            cv2.rectangle(out_img, (win_xleft_low, win_y_low), (win_xleft_high, win_y_high), (0, 255, 0), 2)
+            cv2.rectangle(out_img, (win_xright_low, win_y_low), (win_xright_high, win_y_high), (0, 255, 0), 2)
             
             # Identifies the nonzero pixels in x and y within the window
             good_left_inds = ((self.nonzeroy_m >= win_y_low) & 
@@ -167,7 +166,7 @@ class LaneLineDetection:
             Uses Histogram peaks and Sliding Window method to find all pixels
             belonging to each line (left and right line)
         """
-        self.split_histogram(histogram)
+        midpoint = self.split_histogram(histogram)
         self.setup_sw(binary_warped)
         return self.track_curvature(binary_warped)
     
@@ -178,14 +177,14 @@ class LaneLineDetection:
         # Find our lane pixels
         
         # Fit a second order polynomial to each line using `np.polyfit`
-        left_fit = np.polyfit(self.lefty_m, self.leftx_m, 2)
-        right_fit = np.polyfit(self.righty_m, self.rightx_m, 2)
+        self.left_fit_m = np.polyfit(self.lefty_m, self.leftx_m, 2)
+        self.right_fit_m = np.polyfit(self.righty_m, self.rightx_m, 2)
         
         # Generate x and y values for plotting
         ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0])
         try:
-            left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
-            right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]
+            left_fitx = self.left_fit_m[0]*ploty**2 + self.left_fit_m[1]*ploty + self.left_fit_m[2]
+            right_fitx = self.right_fit_m[0]*ploty**2 + self.right_fit_m[1]*ploty + self.right_fit_m[2]
         except TypeError:
             # Avoids an error if `left_fit` and `right_fit` 
             # are still none or incorrect
@@ -214,4 +213,72 @@ class LaneLineDetection:
         # left lane line red, right lane line blue and each polynomial
         # plotted per lane line as yellow
         plt.imshow(out_img)
+
+    def search_around_poly(self, binary_warped):
+        """
+            Uses polynomial left_fit and right_fit values from the previous frame
+        """
+        # Set the area of search based on activated x-values within the
+        # +/- margin of our polynomial function
+        self.left_lane_inds_m = ((self.nonzerox_m > 
+                           (self.left_fit_m[0]*(self.nonzeroy_m**2) +
+                            self.left_fit_m[1]*self.nonzeroy_m +
+                            self.left_fit_m[2] - self.margin_m)) & 
+                          (self.nonzerox_m < 
+                           (self.left_fit_m[0]*(self.nonzeroy_m**2) +
+                            self.left_fit_m[1]*self.nonzeroy_m +
+                            self.left_fit_m[2] + self.margin_m)))
         
+        self.right_lane_inds_m = ((self.nonzerox_m >
+                            (self.right_fit_m[0]*(self.nonzeroy_m**2) +
+                             self.right_fit_m[1]*self.nonzeroy_m +
+                             self.right_fit_m[2] - self.margin_m)) &
+                           (self.nonzerox_m < 
+                            (self.right_fit_m[0]*(self.nonzeroy_m**2) +
+                             self.right_fit_m[1]*self.nonzeroy_m +
+                             self.right_fit_m[2] + self.margin_m)))
+        
+        # Again, extract left and right line pixel positions
+        self.leftx_m = self.nonzerox_m[self.left_lane_inds_m]
+        self.lefty_m = self.nonzeroy_m[self.left_lane_inds_m]
+        self.rightx_m = self.nonzerox_m[self.right_lane_inds_m]
+        self.righty_m = self.nonzeroy_m[self.right_lane_inds_m]
+        
+        # Fit new polynomials
+        ploty, left_fitx, right_fitx = self.fit_polynomial(binary_warped)
+        return ploty, left_fitx, right_fitx
+        
+    def visualize_sap(self, binary_warped, ploty, left_fitx, right_fitx):
+        """
+            Visualize the area around each line in green and the fit polynomial per
+            lane line in yellow. The left line is red and right line is blue.
+        """
+        # Create an image to draw on and an image to show selection window
+        out_img = np.dstack((binary_warped, binary_warped, binary_warped))*255
+        window_img = np.zeros_like(out_img)
+        # Color in left and right line pixels
+        out_img[self.nonzeroy_m[self.left_lane_inds_m], self.nonzerox_m[self.left_lane_inds_m]] = [255, 0, 0]
+        out_img[self.nonzeroy_m[self.right_lane_inds_m], self.nonzerox_m[self.right_lane_inds_m]] = [0, 0, 255]
+        
+        # Generate a polygon to illustrate the search window area
+        # And recast the x andy points into usable format for cv2.fillPoly()
+        left_line_window1 = np.array([np.transpose(np.vstack([left_fitx-self.margin_m, ploty]))])
+        left_line_window2 = np.array([np.flipud(np.transpose(np.vstack([left_fitx+self.margin_m, ploty])))])
+        # left line pts for left_line_window1 and left_line_window2
+        left_line_pts = np.hstack((left_line_window1, left_line_window2))
+                            
+        right_line_window1 = np.array([np.transpose(np.vstack([right_fitx-self.margin_m, ploty]))])
+        right_line_window2 = np.array([np.flipud(np.transpose(np.vstack([right_fitx+self.margin_m, ploty])))])
+        # right line pts for right_line_window1 and right_line_window2                    
+        right_line_pts = np.hstack((right_line_window1, right_line_window2))
+        
+        # Draw the lane onto the warped blank image
+        cv2.fillPoly(window_img, np.int_([left_line_pts]), (0,255,0))
+        cv2.fillPoly(window_img, np.int_([right_line_pts]), (0,255,0))
+        result = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
+                            
+        # Plot the polynomial lines onto the image
+        plt.plot(left_fitx, ploty, color='yellow')
+        plt.plot(right_fitx, ploty, color='yellow')
+        # View Visualization of Search around Polynomial 
+        plt.imshow(result)                    

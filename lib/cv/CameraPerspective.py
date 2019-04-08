@@ -30,10 +30,11 @@ class CameraPerspective:
         # source points
         src = np.array( 
             [[imshape[1]*0.145, imshape[0]], # bottom left
-             [imshape[1]*0.425, imshape[0]*0.667], # top left
-             [imshape[1]*0.58, imshape[0]*0.667], # top right
+             [imshape[1]*0.462, imshape[0]*0.62], # top left
+             [imshape[1]*0.535, imshape[0]*0.62], # top right
              [imshape[1]*0.883, imshape[0]]], # bottom right
-            dtype = np.float32 )
+            dtype = np.float32 )      
+        
         # destination points
         dst = np.array(
             [[imshape[1]*0.24, imshape[0]], # bottom left
