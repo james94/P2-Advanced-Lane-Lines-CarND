@@ -181,21 +181,26 @@ class LaneLineDetection:
         self.right_fit_m = np.polyfit(self.righty_m, self.rightx_m, 2)
         
         # Generate x and y values for plotting
-        ploty = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0])
+        self.ploty_m = np.linspace(0, binary_warped.shape[0]-1, binary_warped.shape[0])
         try:
-            left_fitx = self.left_fit_m[0]*ploty**2 + self.left_fit_m[1]*ploty + self.left_fit_m[2]
-            right_fitx = self.right_fit_m[0]*ploty**2 + self.right_fit_m[1]*ploty + self.right_fit_m[2]
+            left_fitx = self.left_fit_m[0]*self.ploty_m**2 + self.left_fit_m[1]*self.ploty_m + self.left_fit_m[2]
+            right_fitx = self.right_fit_m[0]*self.ploty_m**2 + self.right_fit_m[1]*self.ploty_m + self.right_fit_m[2]
         except TypeError:
             # Avoids an error if `left_fit` and `right_fit` 
             # are still none or incorrect
             print('The function failed to fit a line!')
-            left_fitx = 1*ploty**2 + 1*ploty
-            right_fitx = 1*ploty**2 + 1*ploty
+            left_fitx = 1*self.ploty_m**2 + 1*self.ploty_m
+            right_fitx = 1*self.ploty_m**2 + 1*self.ploty_m
             
-        return ploty, left_fitx, right_fitx
-            
+        return left_fitx, right_fitx
+    
+    def get_fit_polynomial_data(self):
+        """
+            Returns second order polynomial to each line
+        """
+        return self.ploty_m, self.left_fit_m, self.right_fit_m
         
-    def visualize_fit_polynomial(self, out_img, ploty, left_fitx, right_fitx):
+    def visualize_fit_polynomial(self, out_img, left_fitx, right_fitx):
         """
             Visualize the sliding windows per line and the fit polynomial per
             lane line
@@ -206,9 +211,9 @@ class LaneLineDetection:
         out_img[self.righty_m, self.rightx_m] = [0, 0, 255]
         
         # Plots the left polynomial on the lane line
-        plt.plot(left_fitx, ploty, color = 'yellow')
+        plt.plot(left_fitx, self.ploty_m, color = 'yellow')
         # Plots the right polynomial on the lane line
-        plt.plot(right_fitx, ploty, color = 'yellow')
+        plt.plot(right_fitx, self.ploty_m, color = 'yellow')
         # Display out_img with sliding windows plotted per lane line as green,
         # left lane line red, right lane line blue and each polynomial
         # plotted per lane line as yellow
@@ -245,10 +250,10 @@ class LaneLineDetection:
         self.righty_m = self.nonzeroy_m[self.right_lane_inds_m]
         
         # Fit new polynomials
-        ploty, left_fitx, right_fitx = self.fit_polynomial(binary_warped)
-        return ploty, left_fitx, right_fitx
+        left_fitx, right_fitx = self.fit_polynomial(binary_warped)
+        return left_fitx, right_fitx
         
-    def visualize_sap(self, binary_warped, ploty, left_fitx, right_fitx):
+    def visualize_sap(self, binary_warped, left_fitx, right_fitx):
         """
             Visualize the area around each line in green and the fit polynomial per
             lane line in yellow. The left line is red and right line is blue.
@@ -262,13 +267,13 @@ class LaneLineDetection:
         
         # Generate a polygon to illustrate the search window area
         # And recast the x andy points into usable format for cv2.fillPoly()
-        left_line_window1 = np.array([np.transpose(np.vstack([left_fitx-self.margin_m, ploty]))])
-        left_line_window2 = np.array([np.flipud(np.transpose(np.vstack([left_fitx+self.margin_m, ploty])))])
+        left_line_window1 = np.array([np.transpose(np.vstack([left_fitx-self.margin_m, self.ploty_m]))])
+        left_line_window2 = np.array([np.flipud(np.transpose(np.vstack([left_fitx+self.margin_m, self.ploty_m])))])
         # left line pts for left_line_window1 and left_line_window2
         left_line_pts = np.hstack((left_line_window1, left_line_window2))
                             
-        right_line_window1 = np.array([np.transpose(np.vstack([right_fitx-self.margin_m, ploty]))])
-        right_line_window2 = np.array([np.flipud(np.transpose(np.vstack([right_fitx+self.margin_m, ploty])))])
+        right_line_window1 = np.array([np.transpose(np.vstack([right_fitx-self.margin_m, self.ploty_m]))])
+        right_line_window2 = np.array([np.flipud(np.transpose(np.vstack([right_fitx+self.margin_m, self.ploty_m])))])
         # right line pts for right_line_window1 and right_line_window2                    
         right_line_pts = np.hstack((right_line_window1, right_line_window2))
         
@@ -278,7 +283,7 @@ class LaneLineDetection:
         result = cv2.addWeighted(out_img, 1, window_img, 0.3, 0)
                             
         # Plot the polynomial lines onto the image
-        plt.plot(left_fitx, ploty, color='yellow')
-        plt.plot(right_fitx, ploty, color='yellow')
+        plt.plot(left_fitx, self.ploty_m, color='yellow')
+        plt.plot(right_fitx, self.ploty_m, color='yellow')
         # View Visualization of Search around Polynomial 
         plt.imshow(result)                    
