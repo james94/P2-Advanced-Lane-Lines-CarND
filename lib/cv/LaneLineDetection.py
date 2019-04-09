@@ -28,7 +28,14 @@ class LaneLineDetection:
         # Width of the windows +/- margin
         self.margin_m = 100
         # Minimum number of pixels found to recenter window
-        self.minpix_m = 50
+        self.minpix_m = 50      
+        
+        # Camera image has 720 relevant pixels or 30 meters long in the y-dimension
+        self.ym_per_pix_m = 30/720 # Meters per Pixel in y dimension
+        
+        # Camera image has 700 relevant pixels or 3.7 meters wide in the x-dimension
+        # 200 pixels were used on the left and 900 on the right
+        self.xm_per_pix_m = 3.7/700 # Meters per Pixel in x dimension        
         
     # Histogram Peaks
         
@@ -64,10 +71,9 @@ class LaneLineDetection:
         """
         # Find the peak of the left and right halves of the histogram
         # These will be the starting point for the left and right lines
-        midpoint = np.int(histogram.shape[0]//2)
-        self.leftx_base_m = np.argmax(histogram[:midpoint])
-        self.rightx_base_m = np.argmax(histogram[midpoint:]) + midpoint
-        return midpoint
+        self.midpoint_m = np.int(histogram.shape[0]//2)
+        self.leftx_base_m = np.argmax(histogram[:self.midpoint_m])
+        self.rightx_base_m = np.argmax(histogram[self.midpoint_m:]) + self.midpoint_m
     
     def setup_sw_hyperparameters(self, nwindows, margin, minpix):
         """
@@ -166,7 +172,7 @@ class LaneLineDetection:
             Uses Histogram peaks and Sliding Window method to find all pixels
             belonging to each line (left and right line)
         """
-        midpoint = self.split_histogram(histogram)
+        self.split_histogram(histogram)
         self.setup_sw(binary_warped)
         return self.track_curvature(binary_warped)
     
@@ -175,7 +181,6 @@ class LaneLineDetection:
             Fits a polynomial to the lane line
         """
         # Find our lane pixels
-        
         # Fit a second order polynomial to each line using `np.polyfit`
         self.left_fit_m = np.polyfit(self.lefty_m, self.leftx_m, 2)
         self.right_fit_m = np.polyfit(self.righty_m, self.rightx_m, 2)
