@@ -13,6 +13,8 @@ class CameraCalibration:
         # ny = corners for a column
         self.m_ny = ny
         self.m_cal_dfp = cam_cal_dfp
+        # Distorted Image
+        self.dist_img_m = None
         # list of calibration images
         self.m_images = glob.glob(self.m_cal_dfp)
         self.m_objp = self.get_prepared_objp()
@@ -65,19 +67,28 @@ class CameraCalibration:
                                               self.m_imgpoints, img_size, None, None)    
         return mtx, dist_coeff
     
-    def correct_distortion(self, src_img_fpath, mtx, dist_coeff):
+    def set_dist_img(self, src_img_fpath):
+        """
+        """
+        # Test undistortion on a distorted image
+        self.dist_img_m = mpimg.imread(src_img_fpath)
+    
+    def correct_distortion(self, mtx, dist_coeff, dist_img = None):
         """
         Apply Distortion Correction on an image by passing computed camera calibration
         matrix and distortion coefficients into undistort().
         
         Returns distorted image and undistorted image
         """
-        # Test undistortion on a distorted image
-        dist_img = mpimg.imread(src_img_fpath)
         # Using camera calibration matrix and distortion coefficients to undistort img
-        undist_img = cv2.undistort(dist_img, mtx, dist_coeff, None, mtx)
+        if dist_img is not None:
+            self.dist_img_m = dist_img
+#         elif(self.dist_img_m == None):
+#             print("Error: self.dist_img_m = None")
+        
+        undist_img = cv2.undistort(self.dist_img_m, mtx, dist_coeff, None, mtx)
         # Retrieve distorted image and undistorted image
-        return dist_img, undist_img
+        return self.dist_img_m, undist_img
     
     def save_undistorted_img(self, dst_img_fpath, dst_img, mtx, dist_coeff):
         """

@@ -121,6 +121,13 @@ class LaneBoundaries:
         # Put vehicle position string onto image result
         cv2.putText(self.result_m, vehicle_position_str, (50, 150), self.font_family_m, self.font_size_m, self.font_color_m, self.font_thickness_m, self.line_type_m)
         
+    def get_overlayed_image(self):
+        """
+            Returns overlayed image that now has lane boundaries, lane curvature 
+            and vehicle position.
+        """
+        return self.result_m
+        
     def visualize(self):
         """
             Visualizes the detected lane boundary overlayed onto the 
