@@ -46,17 +46,23 @@ class CameraPerspective:
         # Compute the perspective transform, M
         M = cv2.getPerspectiveTransform(src, dst)
         
-        # Could compute the inerse also by swapping the input parameters
-        Minv = cv2.getPerspectiveTransform(dst, src)
+        # Could compute the inverse also by swapping the input parameters
+        self.Minv_m = cv2.getPerspectiveTransform(dst, src)
         
         # Create warped image - uses linear interpolation
         warped = cv2.warpPerspective(img, M, img_size, flags=cv2.INTER_LINEAR)
         
         return warped
 
+    def get_minv(self):
+        """
+            Returns Minv, the inverse perspective transform
+        """
+        return self.Minv_m
+    
     def visualize(self, original_img, warped_img):
         """
-        Visualize original distorted image and undistorted image using Matplotlib
+            Visualize original distorted image and undistorted image using Matplotlib
         """
         f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,10))
         ax1.imshow(original_img, cmap = 'gray')

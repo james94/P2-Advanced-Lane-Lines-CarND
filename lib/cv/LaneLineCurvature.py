@@ -27,6 +27,15 @@ class LaneLineCurvature:
         # y-value for where we want radius of curvature
         # Chose the max y-value,corresponding to bottom of image
         y_eval = np.max(ploty)
+
+        # Generate x and y values for plotting
+        left_fitx = left_fit[0]*ploty**2 + left_fit[1]*ploty + left_fit[2]
+        right_fitx = right_fit[0]*ploty**2 + right_fit[1]*ploty + right_fit[2]       
+
+        # Fit new polynomials to x, y in real world space
+        left_fit_rw = np.polyfit(ploty*self.ym_per_pix_m, left_fitx*self.xm_per_pix_m, 2)
+        right_fit_rw = np.polyfit(ploty*self.ym_per_pix_m, right_fitx*self.xm_per_pix_m, 2)
+        
         if(unit_type == "pixels"):
             # Calculates R-curve (radius of curvature)
             # Left Line R-curve
@@ -34,29 +43,25 @@ class LaneLineCurvature:
         
             # Right Line R-curve
             self.right_curverad_m = ((1 + (2*right_fit[0]*y_eval + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])
+            self.units_m = "(p)"
         elif(unit_type == "meters"):
             # Calculates R-curve (radius of curvature)
             # Left Line R-curve
-            self.left_curverad_m = ((1 + (2*left_fit[0]*y_eval*self.ym_per_pix_m + left_fit[1])**2)**1.5) / np.absolute(2*left_fit[0])
+            self.left_curverad_m = ((1 + (2*left_fit_rw[0]*y_eval*self.ym_per_pix_m + left_fit_rw[1])**2)**1.5) / np.absolute(2*left_fit_rw[0])
         
             # Right Line R-curve
-            self.right_curverad_m = ((1 + (2*right_fit[0]*y_eval*self.ym_per_pix_m + right_fit[1])**2)**1.5) / np.absolute(2*right_fit[0])            
+            self.right_curverad_m = ((1 + (2*right_fit_rw[0]*y_eval*self.ym_per_pix_m + right_fit_rw[1])**2)**1.5) / np.absolute(2*right_fit_rw[0])
+            self.units_m = "(m)"
         
         # Returns radius of lane curvature
-        return self.left_curverad_m, self.right_curverad_m
+        return self.left_curverad_m, self.right_curverad_m, self.units_m
         
 
-    def display_radius_curvature(self, unit_type):
+    def display_radius_curvature(self):
         """
             Displays to screen lane curvature in pixels, meters, etc based on
             unit_type flag passed 
         """
-        # Check unit type for radius of lane curvature
-        if(unit_type == "pixels"):
-            curverad_unit_type = "(pixels)"
-        elif(unit_type == "meters"):
-            curverad_unit_type = "(meters)"
-        else:
-            curverad_unit_type = "(undefined)"
-            
-        print("left_curverad = %s, right_curverad = %s %s" %(self.left_curverad_m, self.right_curverad_m, curverad_unit_type))
+        print("Left Lane Line Curvature Radius = %d %s" %(self.left_curverad_m, self.units_m))
+
+        print("Right Lane Line Curvature Radius = %d %s" %(self.right_curverad_m, self.units_m))
