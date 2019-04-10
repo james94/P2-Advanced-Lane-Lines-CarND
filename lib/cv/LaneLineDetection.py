@@ -74,6 +74,12 @@ class LaneLineDetection:
         self.midpoint_m = np.int(histogram.shape[0]//2)
         self.leftx_base_m = np.argmax(histogram[:self.midpoint_m])
         self.rightx_base_m = np.argmax(histogram[self.midpoint_m:]) + self.midpoint_m
+        
+    def get_xint_polynomials(self):
+        """
+            Retrieves x-intercepts from left and right polynomials
+        """
+        return self.leftx_base_m, self.rightx_base_m
     
     def setup_sw_hyperparameters(self, nwindows, margin, minpix):
         """
