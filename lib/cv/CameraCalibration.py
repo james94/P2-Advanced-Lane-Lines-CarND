@@ -69,8 +69,9 @@ class CameraCalibration:
     
     def set_dist_img(self, src_img_fpath):
         """
+            Sets private distorted image by reading in image with mpimg.imread()
         """
-        # Test undistortion on a distorted image
+        # Read in RGB distorted image to self.dist_img_m
         self.dist_img_m = mpimg.imread(src_img_fpath)
     
     def correct_distortion(self, mtx, dist_coeff, dist_img = None):
