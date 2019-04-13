@@ -4,6 +4,7 @@ import numpy as np
 import pickle
 import glob
 import cv2
+import os
 
 # Mathematically we can characterize perspective by saying that in real world 
 # coordinates (X, Y, Z), the greater the magnitude of an object's Z coordinate or
@@ -60,12 +61,38 @@ class CameraPerspective:
         """
         return self.Minv_m
     
-    def visualize(self, original_img, warped_img):
+    def save_img(self, dst_path, filename, dst_img):
         """
-            Visualize original distorted image and undistorted image using Matplotlib
+            Save image using OpenCV during bird's eye view transformation process,
+            such as warped image
         """
-        f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,10))
-        ax1.imshow(original_img, cmap = 'gray')
-        ax1.set_title("Original Image", fontsize=30)
-        ax2.imshow(warped_img, cmap = 'gray')
-        ax2.set_title("Warped Image", fontsize=30)    
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save binary image resulting from gradient thresholding
+        plt.imsave(dst_path + filename, dst_img, cmap = "gray")
+    
+    def save_fig(self, dst_path, filename):
+        """
+            Save figure using OpenCV during bird's eye view transformation process,
+            such as source_points, destination_points, etc
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save current figure
+        plt.savefig(dst_path + filename)        
+    
+    def visualize(self, src_title, undist_img, dst_title, binary_img):
+        """
+        Visualize color thresholded image
+        """
+        f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24,9))
+        f.tight_layout()
+        ax1.imshow(undist_img, cmap = 'gray')
+        ax1.set_title(src_title, fontsize=50)
+        ax2.imshow(binary_img, cmap = 'gray')
+        ax2.set_title(dst_title, fontsize=50)
+        plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0.)      

@@ -2,6 +2,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 
 # LaneVehiclePosition calculates vehicle's position with respect to the center
 # of the lane
@@ -55,8 +56,34 @@ class LaneVehiclePosition:
         
         return self.dist_center_m, self.units_m, self.side_center_m
     
-    def display_vehicle_position(self):
+    def display_vehicle_position(self, frame_title):
         """
             Displays to screen vehicle's position with respect to center
         """
+        print("Frame: %s" %(frame_title))
         print("Vehicle is %.2f %s %s" %(self.dist_center_m, self.units_m, self.side_center_m))
+        print("\n")
+        
+    def save_img(self, dst_path, filename, dst_img):
+        """
+            Save image using OpenCV during bird's eye view transformation process,
+            such as warped image
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save binary image resulting from gradient thresholding
+        plt.imsave(dst_path + filename, dst_img, cmap = "gray")
+    
+    def save_fig(self, dst_path, filename):
+        """
+            Save figure using OpenCV during bird's eye view transformation process,
+            such as source_points, destination_points, etc
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save current figure
+        plt.savefig(dst_path + filename)      

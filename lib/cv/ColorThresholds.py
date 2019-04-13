@@ -2,6 +2,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 
 # Color space is a specific organization of colors
 # They provide a way to categorize colors and represent them in digital images
@@ -50,13 +51,30 @@ class ColorThresholds:
         binary_img[ (b_img >= thresh[0]) & (b_img <= thresh[1]) ] = 1
         return binary_img  
     
-    # Apply Combined RGB Thresholding
-    def apply_rgb_thresh(self, img, thresh = [(0, 255), (0, 255), (0, 255)]):
-        r_binary = self.apply_r_thresh(img, thresh[0])
-        g_binary = self.apply_g_thresh(img, thresh[1])
-        b_binary = self.apply_b_thresh(img, thresh[2])
-        combined = np.zeros_like(b_binary)
-        combined[ (r_binary == 1) & (g_binary == 1) & (b_binary == 1) ] = 1
+    def apply_rgb_thresh(self, num_code, rgb_r = None, rgb_g = None, rgb_b = None):
+        """
+            Combine RGB Thresholding binary images based on the red, green and/or
+            blue thresholds already applied, they set private variables that can be
+            used in this method. Choose based on number code, which thresholds you'd
+            combine:
+            0: R Binary, G Binary
+            1: R Binary, B binary
+            2: G Binary, B Binary
+            3: R Binary, G Binary, B Binary
+        """
+        combined = np.zeros_like(rgb_r)
+        if num_code == 0:
+            combined[ (rgb_r == 1) & (rgb_g == 1) ] = 1
+        elif num_code == 1:
+            combined[ (rgb_r == 1) & (rgb_b == 1) ] = 1
+        elif num_code == 2: 
+            combined[ (rgb_g == 1) & (rgb_b == 1) ] = 1  
+        elif num_code == 3:
+            combined[ (rgb_r == 1) & (rgb_g == 1) & (rgb_b == 1) ] = 1             
+        else:
+            print("Error: Choose a supported code for combined rgb")
+
+        # Return binary result from multiple thresholds
         return combined
     
     # Thresholding individual HSL Color Channels
@@ -82,7 +100,33 @@ class ColorThresholds:
         return binary_img
     
     # Apply Combined HLS Thresholding
-    def apply_hls_thresh(self, img, thresh = [(0, 255), (0, 255), (0, 255)]):
+    def apply_hls_thresh(self, num_code, hls_h = None, hls_l = None, hls_s = None):
+        """
+            Combine HLS Thresholding binary images based on the hue, lightness
+            and/or saturation thresholds already applied, they set private 
+            variables that can be used in this method. Choose based on number 
+            code, which thresholds you'd combine:
+            # 0: H Binary, L Binary
+            # 1: H Binary, S binary
+            # 2: L Binary, S Binary
+            # 3: H Binary, L Binary, S Binary  
+        """
+        combined = np.zeros_like(hls_h)
+        if num_code == 0:
+            combined[ (hls_h == 1) & (hls_l == 1) ] = 1
+        elif num_code == 1:
+            combined[ (hls_h == 1) & (hls_s == 1) ] = 1
+        elif num_code == 2: 
+            combined[ (hls_l == 1) & (hls_s == 1) ] = 1  
+        elif num_code == 3:
+            combined[ (hls_h == 1) & (hls_l == 1) & (hls_s == 1) ] = 1             
+        else:
+            print("Error: Choose a supported code for combined hls")
+
+        # Return binary result from multiple thresholds
+        return combined        
+        
+        
         h_binary = self.apply_h_thresh(img, thresh[0])
         l_binary = self.apply_l_thresh(img, thresh[1])
         s_binary = self.apply_s_thresh(img, thresh[2])
@@ -90,14 +134,25 @@ class ColorThresholds:
         combined[ (h_binary == 1) & (l_binary == 1) & (s_binary == 1) ] = 1
         return combined
     
-    def visualize_thresholded_img(self, undist_img, binary_img, undist_img_title, thresh_img_title):
+    def save_img(self, dst_path, filename, dst_img):
+        """
+        Save gradient thresholded image using OpenCV
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save binary image resulting from gradient thresholding
+        plt.imsave(dst_path + filename, dst_img, cmap = "gray")
+        
+    def visualize(self, src_title, undist_img, dst_title, binary_img):
         """
         Visualize color thresholded image
         """
         f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24,9))
         f.tight_layout()
         ax1.imshow(undist_img, cmap = 'gray')
-        ax1.set_title(undist_img_title, fontsize=50)
+        ax1.set_title(src_title, fontsize=50)
         ax2.imshow(binary_img, cmap = 'gray')
-        ax2.set_title(thresh_img_title, fontsize=50)
+        ax2.set_title(dst_title, fontsize=50)
         plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0.)

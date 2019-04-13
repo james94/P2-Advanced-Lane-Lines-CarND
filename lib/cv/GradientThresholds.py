@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 # Gradient Thresholds and Color Spaces can be used to more easily
 # identify lane markings on the road
 # GradientThresholds:
@@ -9,8 +10,8 @@ import cv2
 # We find the lane line magnitude and direction in an image. We can also focus 
 # on other properties in an image.
 class GradientThresholds:
-    def __init__(self, img):
-        self.m_img = img
+    def __init__(self):
+        self.img_m = None
         
     def apply_sobel_thresh(self, img, orient='x', thresh_min=0, thresh_max=255):
         """
@@ -37,7 +38,9 @@ class GradientThresholds:
         # Apply lower and upper thresholds to mask scaled gradient
         binary_image = np.zeros_like(scaled_sobel)
         # Apply 1's when scaled gradient is within threshold
-        binary_image[(scaled_sobel >= thresh_min) & (scaled_sobel <= thresh_max)] = 1
+        binary_image[(scaled_sobel >= thresh_min) & 
+                     (scaled_sobel <= thresh_max)] = 1
+            
         # Return this mask as binary image
         return binary_image
     
@@ -57,7 +60,9 @@ class GradientThresholds:
         scaled_grad_mag = (grad_mag/scale_factor).astype(np.uint8)
         # Create a binary mask where mag thresholds are met
         binary_image = np.zeros_like(scaled_grad_mag)
-        binary_image[(scaled_grad_mag >= mag_thresh[0]) & (scaled_grad_mag <= mag_thresh[1])] = 1
+        binary_image[(scaled_grad_mag >= mag_thresh[0]) & 
+                     (scaled_grad_mag <= mag_thresh[1])] = 1
+
         # Return this mask as binary_image
         return binary_image
         
@@ -74,36 +79,60 @@ class GradientThresholds:
         abs_sobelx = np.absolute(sobelx)
         abs_sobely = np.absolute(sobely)
         # Calculate the gradient direction
-        dir_grad = np.arctan2(abs_sobely, abs_sobelx)
+        dir_grad = np.arctan2(abs_sobely, abs_sobelx)      
+        
         # Create a binary image where direction thresholds are met
         binary_image = np.zeros_like(dir_grad)
         binary_image[(dir_grad >= dir_thresh[0]) & (dir_grad <= dir_thresh[1])] = 1
+        
         # Return binary_image
         return binary_image
         
-    def apply_combined_thresh(self, img, ksize=3, thresh = ()):
+    def apply_combined_thresh(self, combination_code, grad_x = None, grad_y = None, grad_mag = None, grad_dir = None):
         """
-            Apply each of the thresholding functions
+            Combine Gradient Thresholding binary images based on the gradients 
+            already applied, they set private variables that can be used in this
+            method. Choose based on code, which thresholds you'd combine:
+            0: X-Sobel, Gradient Magnitude
+            1: X-Sobel, Gradient Direction
+            2: X-Sobel, Gradient Magnitude, Gradient Direction
+            3: X-Sobel, Y-Sobel, Gradient Magnitude, Gradient Direction
         """
-        gradx = self.apply_sobel_thresh(img, orient='x', thresh_min=20, thresh_max=100)
-        grady = self.apply_sobel_thresh(img, orient='y', thresh_min=20, thresh_max=100)
-        mag_binary = self.apply_grad_mag_thresh(img, ksize, mag_thresh=(30, 100))
-        dir_binary = self.apply_grad_dir_thresh(img, ksize, dir_thresh=(0.7, 1.3))
-        # Selection for pixels where both x and y gradients meet the threshold criteria
-        # Gradient magnitude and direction are both within their threshold values
-        combined = np.zeros_like(dir_binary)
-        combined[ ((gradx == 1) & (grady == 1)) | ((mag_binary == 1) & (dir_binary == 1)) ] = 1
+        combined = np.zeros_like(grad_x)
+        if combination_code == 0:
+            combined[ (grad_x == 1) | (grad_mag_ == 1) ] = 1
+        elif combination_code == 1:
+            combined[ (grad_x == 1) | (grad_dir == 1) ] = 1
+        elif combination_code == 2: 
+            combined[ (grad_x == 1) | ((grad_mag == 1) & (grad_dir == 1)) ] = 1  
+        elif combination_code == 3:
+            combined[ ((grad_x == 1) & (grad_y == 1)) | 
+                     ((grad_mag == 1) & (grad_dir == 1)) ] = 1             
+        else:
+            print("Error: Choose a supported code for combined gradient")
+
         # Return binary result from multiple thresholds
         return combined
+
+    def save_img(self, dst_path, filename, dst_img):
+        """
+        Save gradient thresholded image using OpenCV
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
         
-    def visualize_thresholded_img(self, curved_undist_img, grad_binary_img, thresh_img_title):
+        # Save binary image resulting from gradient thresholding
+        plt.imsave(dst_path + filename, dst_img, cmap = "gray")
+    
+    def visualize(self, src_title, undist_img, dst_title, binary_img):
         """
         Visualize gradient thresholded image
         """
         f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24,9))
         f.tight_layout()
-        ax1.imshow(curved_undist_img, cmap = 'gray')
-        ax1.set_title('Undistorted Image', fontsize=50)
-        ax2.imshow(grad_binary_img, cmap = 'gray')
-        ax2.set_title(thresh_img_title, fontsize=50)
+        ax1.imshow(undist_img, cmap = 'gray')
+        ax1.set_title(src_title, fontsize=50)
+        ax2.imshow(binary_img, cmap = 'gray')
+        ax2.set_title(dst_title, fontsize=50)
         plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0.)

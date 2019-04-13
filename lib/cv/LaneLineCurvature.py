@@ -2,6 +2,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 
 class LaneLineCurvature:
     def __init__(self):
@@ -57,11 +58,37 @@ class LaneLineCurvature:
         return self.left_curverad_m, self.right_curverad_m, self.units_m
         
 
-    def display_radius_curvature(self):
+    def display_radius_curvature(self, frame_title):
         """
             Displays to screen lane curvature in pixels, meters, etc based on
             unit_type flag passed 
         """
+        print("Frame: %s" %(frame_title))
         print("Left Lane Line Curvature Radius = %d %s" %(self.left_curverad_m, self.units_m))
 
         print("Right Lane Line Curvature Radius = %d %s" %(self.right_curverad_m, self.units_m))
+        print("\n")
+        
+    def save_img(self, dst_path, filename, dst_img):
+        """
+            Save image using OpenCV during bird's eye view transformation process,
+            such as warped image
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save binary image resulting from gradient thresholding
+        plt.imsave(dst_path + filename, dst_img, cmap = "gray")
+    
+    def save_fig(self, dst_path, filename):
+        """
+            Save figure using OpenCV during bird's eye view transformation process,
+            such as source_points, destination_points, etc
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save current figure
+        plt.savefig(dst_path + filename)

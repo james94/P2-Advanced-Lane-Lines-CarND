@@ -2,6 +2,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 
 # Prerequisite: Have applied camera calibration, thresholding and perspective
     # transform to a road image, results in a binary warped image where lane lines
@@ -57,11 +58,26 @@ class LaneLineDetection:
         
         return histogram
     
-    def visualize_hist(self, histogram):
+    def visualize_hist(self, dst_title, histogram):
         """
             Visualize resulting historgram from histogram_peaks() method
         """
         plt.plot(histogram)
+        plt.title(dst_title, {'fontsize': 20})
+#         plt.show()
+        
+    def visualize_lanes_and_hist(self, src_title, undist_img, graph_title, graph):
+        """
+        Visualize warped bird's eye view image next to histogram peaks graph
+        """
+        f, (ax1, ax2) = plt.subplots(1, 2, figsize=(24,9))
+        f.tight_layout()
+        ax1.imshow(undist_img, cmap = 'gray')
+        ax1.set_title(src_title, fontsize=50)
+        ax2.plot(graph)
+        ax2.set_title(graph_title, fontsize=50)
+        plt.subplots_adjust(left=0, right=1, top=0.9, bottom=0.)     
+#         plt.show()   
         
     # Sliding Window    
         
@@ -184,7 +200,7 @@ class LaneLineDetection:
     
     def fit_polynomial(self, binary_warped):
         """
-            Fits a polynomial to the lane line
+            Fits a polynomial to each lane line
         """
         # Find our lane pixels
         # Fit a second order polynomial to each line using `np.polyfit`
@@ -211,7 +227,7 @@ class LaneLineDetection:
         """
         return self.ploty_m, self.left_fit_m, self.right_fit_m
         
-    def visualize_fit_polynomial(self, out_img, left_fitx, right_fitx):
+    def visualize_fit_polynomial(self, out_img, left_fitx, right_fitx, dst_title):
         """
             Visualize the sliding windows per line and the fit polynomial per
             lane line
@@ -225,11 +241,13 @@ class LaneLineDetection:
         plt.plot(left_fitx, self.ploty_m, color = 'yellow')
         # Plots the right polynomial on the lane line
         plt.plot(right_fitx, self.ploty_m, color = 'yellow')
+        # Set title for figure with sliding windows and fit polynomials
+        plt.title(dst_title, {'fontsize': 20})
         # Display out_img with sliding windows plotted per lane line as green,
         # left lane line red, right lane line blue and each polynomial
         # plotted per lane line as yellow
         plt.imshow(out_img)
-
+        
     def search_around_poly(self, binary_warped):
         """
             Uses polynomial left_fit and right_fit values from the previous frame
@@ -297,4 +315,28 @@ class LaneLineDetection:
         plt.plot(left_fitx, self.ploty_m, color='yellow')
         plt.plot(right_fitx, self.ploty_m, color='yellow')
         # View Visualization of Search around Polynomial 
-        plt.imshow(result)                    
+        plt.imshow(result)
+        
+    def save_img(self, dst_path, filename, dst_img):
+        """
+            Save image using OpenCV during bird's eye view transformation process,
+            such as warped image
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save binary image resulting from gradient thresholding
+        plt.imsave(dst_path + filename, dst_img, cmap = "gray")
+    
+    def save_fig(self, dst_path, filename):
+        """
+            Save figure using OpenCV during bird's eye view transformation process,
+            such as source_points, destination_points, etc
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save current figure
+        plt.savefig(dst_path + filename)

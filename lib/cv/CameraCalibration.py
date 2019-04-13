@@ -1,9 +1,11 @@
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
+from pathlib import Path
 import numpy as np
 import pickle
 import glob
 import cv2
+import os
 # CameraCalibration class removes inherent distortions from the camera that can affect
 # its perception of the world
 class CameraCalibration:
@@ -73,6 +75,10 @@ class CameraCalibration:
         """
         # Read in RGB distorted image to self.dist_img_m
         self.dist_img_m = mpimg.imread(src_img_fpath)
+        
+        #self.dist_img_m = cv2.imread(src_img_fpath, cv2.IMREAD_COLOR)
+        # Apply Trasnparent API for hardware acceleration when read src path img
+        #self.dist_img_m = cv2.UMat(cv2.imread(src_img_fpath, cv2.IMREAD_COLOR))
     
     def correct_distortion(self, mtx, dist_coeff, dist_img = None):
         """
@@ -91,25 +97,33 @@ class CameraCalibration:
         # Retrieve distorted image and undistorted image
         return self.dist_img_m, undist_img
     
-    def save_undistorted_img(self, dst_img_fpath, dst_img, mtx, dist_coeff):
+    def save_img(self, dst_path, filename, dst_img, mtx, dist_coeff):
         """
         Save undistorted image using OpenCV and then pickle
         """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)        
+        
+        # Convert dst_img from RGB to BGR, so image is saved wout color space issues 
+        dst_img = cv2.cvtColor(dst_img, cv2.COLOR_RGB2BGR)
         # Save tested image after corrected distortion
-        cv2.imwrite(dst_img_fpath + ".jpg", dst_img)
+        cv2.imwrite(dst_path + filename, dst_img)
         # Save camera calibration result for later use
         dist_pickle = {}
         # Camera Matrix is used to perform transformation from distorted to undistorted
         dist_pickle["mtx"] = mtx
         dist_pickle["dist"] = dist_coeff
-        pickle.dump( dist_pickle, open(dst_img_fpath + "_pickle.p", "wb") )    
+        filename = Path(filename)
+        filename_wo_ext = str(filename.with_suffix(''))
+        pickle.dump( dist_pickle, open(dst_path + filename_wo_ext + "_pickle.p", "wb") )    
     
-    def visualize_undistortion(self, src_img, dst_img):
+    def visualize(self, src_title, src_img, dst_title, dst_img):
         """
         Visualize original distorted image and undistorted image using Matplotlib
         """
         f, (ax1, ax2) = plt.subplots(1, 2, figsize=(20,10))
         ax1.imshow(src_img)
-        ax1.set_title("Original Image", fontsize=30)
+        ax1.set_title("Original: " + src_title, fontsize=30)
         ax2.imshow(dst_img)
-        ax2.set_title("Undistorted Image", fontsize=30)
+        ax2.set_title("Undistorted: " + dst_title, fontsize=30)

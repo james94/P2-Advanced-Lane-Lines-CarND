@@ -2,6 +2,7 @@ import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
 import cv2
+import os
 
 class LaneBoundaries:
     def __init__(self):
@@ -71,6 +72,12 @@ class LaneBoundaries:
         self.font_thickness_m = font_thickness
         self.line_type_m = line_type        
         
+    def set_overlayed_lane_boundary(self, lane_boundary_img):
+        """
+            Sets image that already has the lane boundary overlayed onto it
+        """
+        self.result_m = lane_boundary_img
+        
     def overlay_lane_boundaries(self):
         """
             Warps the detected lane boundaries onto the original image
@@ -136,3 +143,26 @@ class LaneBoundaries:
         plt.figure(figsize = (15, 15))
         plt.imshow(self.result_m)
         
+    def save_img(self, dst_path, filename, dst_img):
+        """
+            Save image using OpenCV during bird's eye view transformation process,
+            such as warped image
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save binary image resulting from gradient thresholding
+        plt.imsave(dst_path + filename, dst_img, cmap = "gray")
+    
+    def save_fig(self, dst_path, filename):
+        """
+            Save figure using OpenCV during bird's eye view transformation process,
+            such as source_points, destination_points, etc
+        """
+        # If filepath doesn't exist, create it
+        if not os.path.exists(dst_path):
+            os.makedirs(dst_path)
+        
+        # Save current figure
+        plt.savefig(dst_path + filename)
