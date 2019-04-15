@@ -119,7 +119,7 @@ class ColorThresholds:
         elif num_code == 2: 
             combined[ (hls_l == 1) & (hls_s == 1) ] = 1  
         elif num_code == 3:
-            combined[ (hls_h == 1) & (hls_l == 1) & (hls_s == 1) ] = 1             
+            combined[ ((hls_h == 1) & (hls_s == 1)) & (hls_l == 1) ] = 1             
         else:
             print("Error: Choose a supported code for combined hls")
 
