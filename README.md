@@ -2,7 +2,7 @@
 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-![Lanes Image](./data/output/image/pipeline/lane_perception/vehicle_position/test4.jpg)
+![Lanes Image](data/output/image/pipeline/lane_perception/vehicle_position/test4.jpg)
 
 ## Overview
 ---
@@ -10,6 +10,8 @@
 The purpose of this project was to build an Advanced Lane Finding application for a real world stretch of highway recorded by video. Regardless of the challenges with lighting changes, color changes, curved lanes, etc, **the application was able to identify lane boundaries, lane curvature and vehicle position with respect to the center of the lane from Camera data (images, videos)**. It was assumed the camera data source was mounted on the center top of a car. Advanced Computer Vision techniques were used for this Self Driving Car use case: Camera Calibration, Distortion Correction, Color & Gradient Thresholding, Perspective Transform, Histogram Peaks, Sliding Window Search, etc.
 
 To meet the specifications in the project, I followed these requirements: [project rubric](https://review.udacity.com/#!/rubrics/1966/view).
+
+The output video is the result after running my pipeline on **project_video.mp4** and it can be found at this link: [project_video_mod.mp4](data/output/video/project_video_mod.mp4). Feel free to download it.
 
 ## Contents
 ---
