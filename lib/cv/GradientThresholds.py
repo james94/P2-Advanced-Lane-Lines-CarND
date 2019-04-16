@@ -13,7 +13,7 @@ class GradientThresholds:
     def __init__(self):
         self.img_m = None
         
-    def apply_sobel_thresh(self, img, orient='x', thresh_min=0, thresh_max=255):
+    def apply_sobel_thresh(self, img, orient='x', ksize=(3,3), thresh=(0, 255)):
         """
             Calculate directional gradient.
             Identify pixels where the gradient of an image falls within a specified threshold range.
@@ -24,6 +24,10 @@ class GradientThresholds:
         """
         # Convert to Grayscale
         gray = cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+        
+        # Remove noise
+        gray = cv2.GaussianBlur(gray, ksize, 0)
+        
         # Take derivative in x or y 
         if orient == 'x':
             # Apply sobel for the x direction
@@ -38,8 +42,8 @@ class GradientThresholds:
         # Apply lower and upper thresholds to mask scaled gradient
         binary_image = np.zeros_like(scaled_sobel)
         # Apply 1's when scaled gradient is within threshold
-        binary_image[(scaled_sobel >= thresh_min) & 
-                     (scaled_sobel <= thresh_max)] = 1
+        binary_image[(scaled_sobel >= thresh[0]) & 
+                     (scaled_sobel <= thresh[1])] = 1
             
         # Return this mask as binary image
         return binary_image
@@ -100,14 +104,14 @@ class GradientThresholds:
         """
         combined = np.zeros_like(grad_x)
         if combination_code == 0:
-            combined[ (grad_x == 1) | (grad_mag_ == 1) ] = 1
+            combined[ (grad_x == 1) & (grad_mag == 1) ] = 1
         elif combination_code == 1:
-            combined[ (grad_x == 1) | (grad_dir == 1) ] = 1
+            combined[ (grad_x == 1) & (grad_dir == 1) ] = 1
         elif combination_code == 2: 
-            combined[ (grad_x == 1) | ((grad_mag == 1) & (grad_dir == 1)) ] = 1  
+            combined[ (grad_x == 1) & (grad_mag == 1) & (grad_dir == 1) ] = 1  
         elif combination_code == 3:
-            combined[ ((grad_x == 1) & (grad_y == 1)) | 
-                     ((grad_mag == 1) & (grad_dir == 1)) ] = 1             
+            combined[ (grad_x == 1) & (grad_y == 1) & 
+                      (grad_mag == 1) & (grad_dir == 1) ] = 1             
         else:
             print("Error: Choose a supported code for combined gradient")
 

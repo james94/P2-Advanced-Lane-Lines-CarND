@@ -64,13 +64,13 @@ class ColorThresholds:
         """
         combined = np.zeros_like(rgb_r)
         if num_code == 0:
-            combined[ (rgb_r == 1) & (rgb_g == 1) ] = 1
+            combined[ (rgb_r == 1) | (rgb_g == 1) ] = 1
         elif num_code == 1:
             combined[ (rgb_r == 1) & (rgb_b == 1) ] = 1
         elif num_code == 2: 
             combined[ (rgb_g == 1) & (rgb_b == 1) ] = 1  
         elif num_code == 3:
-            combined[ (rgb_r == 1) & (rgb_g == 1) & (rgb_b == 1) ] = 1             
+            combined[ ((rgb_r == 1) | (rgb_g == 1)) & (rgb_b == 1) ] = 1             
         else:
             print("Error: Choose a supported code for combined rgb")
 
