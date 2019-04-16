@@ -2,7 +2,7 @@
 
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
 
-![Lanes Image](data/output/image/pipeline/lane_perception/vehicle_position/test4.jpg)
+![Lanes Image](./data/output/image/pipeline/lane_perception/vehicle_position/test4.jpg)
 
 ## Overview
 
@@ -10,12 +10,12 @@ The purpose of this project was to build an Advanced Lane Finding application fo
 
 To meet the specifications in the project, I followed these requirements: [project rubric](https://review.udacity.com/#!/rubrics/1966/view).
 
-The output video is the result after running my pipeline on **project_video.mp4** and it can be found at this link: [project_video_mod.mp4](data/output/video/project_video_mod.mp4). Feel free to download it.
+The output video is the result after running my pipeline on **project_video.mp4** and it can be found at this link: [project_video_mod.mp4](./data/output/video/project_video_mod.mp4). Feel free to download it.
 
 ## Contents
 
-- **[P2.ipynb](https://github.com/james94/P2-Advanced-Lane-Lines-CarND/blob/master/P2.ipynb)**: application code
-- **[writeup.md]()**: this article explains my advanced lane finding application code, shortcomings and potential improvements.
+- **[P2.ipynb](./P2.ipynb)**: application code
+- **[writeup.md](./writeup.md)**: explains my advanced lane finding application code, shortcomings, potential improvements and includes each rubric point with a description of how that point was addressed.
 - **README.md**: provides overview of the project and how to set it up
 - **data/**: data folder contains **input/image/**, **input/video/**, **output/image**, **output/video/** sub folders.
 	- **input/image/** folder contains the initial camera image source data (**camera_cal/**, **examples/**, **test_images/**..
