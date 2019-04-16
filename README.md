@@ -1,39 +1,62 @@
-## Advanced Lane Finding
+# Advanced Lane Finding
+
 [![Udacity - Self-Driving Car NanoDegree](https://s3.amazonaws.com/udacity-sdc/github/shield-carnd.svg)](http://www.udacity.com/drive)
-![Lanes Image](./examples/example_output.jpg)
 
-In this project, your goal is to write a software pipeline to identify the lane boundaries in a video, but the main output or product we want you to create is a detailed writeup of the project.  Check out the [writeup template](https://github.com/udacity/CarND-Advanced-Lane-Lines/blob/master/writeup_template.md) for this project and use it as a starting point for creating your own writeup.  
+![Lanes Image](./data/output/image/pipeline/lane_perception/vehicle_position/test4.jpg)
 
-Creating a great writeup:
----
-A great writeup should include the rubric points as well as your description of how you addressed each point.  You should include a detailed description of the code used in each step (with line-number references and code snippets where necessary), and links to other supporting documents or external references.  You should include images in your writeup to demonstrate how your code works with examples.  
-
-All that said, please be concise!  We're not looking for you to write a book here, just a brief description of how you passed each rubric point, and references to the relevant code :). 
-
-You're not required to use markdown for your writeup.  If you use another method please just submit a pdf of your writeup.
-
-The Project
+## Overview
 ---
 
-The goals / steps of this project are the following:
+The purpose of this project was to build an Advanced Lane Finding application for a real world stretch of highway recorded by video. Regardless of the challenges with lighting changes, color changes, curved lanes, etc, **the application was able to identify lane boundaries, lane curvature and vehicle position with respect to the center of the lane from Camera data (images, videos)**. It was assumed the camera data source was mounted on the center top of a car. Advanced Computer Vision techniques were used for this Self Driving Car use case: Camera Calibration, Distortion Correction, Color & Gradient Thresholding, Perspective Transform, Histogram Peaks, Sliding Window Search, etc.
 
-* Compute the camera calibration matrix and distortion coefficients given a set of chessboard images.
-* Apply a distortion correction to raw images.
-* Use color transforms, gradients, etc., to create a thresholded binary image.
-* Apply a perspective transform to rectify binary image ("birds-eye view").
-* Detect lane pixels and fit to find the lane boundary.
-* Determine the curvature of the lane and vehicle position with respect to center.
-* Warp the detected lane boundaries back onto the original image.
-* Output visual display of the lane boundaries and numerical estimation of lane curvature and vehicle position.
+To meet the specifications in the project, I followed these requirements: [project rubric](https://review.udacity.com/#!/rubrics/1966/view).
 
-The images for camera calibration are stored in the folder called `camera_cal`.  The images in `test_images` are for testing your pipeline on single frames.  If you want to extract more test images from the videos, you can simply use an image writing method like `cv2.imwrite()`, i.e., you can read the video in frame by frame as usual, and for frames you want to save for later you can write to an image file.  
+## Contents
+---
 
-To help the reviewer examine your work, please save examples of the output from each stage of your pipeline in the folder called `output_images`, and include a description in your writeup for the project of what each image shows.    The video called `project_video.mp4` is the video your pipeline should work well on.  
+- **[P2.ipynb](https://github.com/james94/P2-Advanced-Lane-Lines-CarND/blob/master/P2.ipynb)**: application code
+- **[writeup.md]()**: this article explains my advanced lane finding application code, shortcomings and potential improvements.
+- **README.md**: provides overview of the project and how to set it up
+- **data/**: data folder contains **input/image/**, **input/video/**, **output/image**, **output/video/** sub folders.
+	- **input/image/** folder contains the initial camera image source data (**camera_cal/**, **examples/**, **test_images/**..
+	- **input/video/** folder contains the initial camera video source data (**project_video.mp4**, **challenge_video.mp4**, **harder_challenge.mp4**).
+	- **output/image/** folder (replaced **output_images**) contains the altered camera source image data after the **input/image/test_images/** data was processed and the result was saved during each stage of my Python Pipeline (**pipeline/**).
+	- **output/video/** folder contains the altered camera video source data after the **input/video/project_video.mp4** data was processed and the result was saved by my Python Pipeline. There are multiple video versions based on my testing. The one without a v1-v3 is my final result.
+- **lib/** contains Computer Vision python classes used in each stage of my Python Pipeline.
+- **notebooks/** contains notebooks that were saved as checkpoints as I progressed through the project
+- **writeup_help/** contains resources that helped me with the writeup structure.
+- **setup_scripts/** contains shell code for helping with setting up the project
 
-The `challenge_video.mp4` video is an extra (and optional) challenge for you if you want to test your pipeline under somewhat trickier conditions.  The `harder_challenge.mp4` video is another optional challenge and is brutal!
+## How To Set Up Project
+---
 
-If you're feeling ambitious (again, totally optional though), don't stop there!  We encourage you to go out and take video of your own, calibrate your camera and show us how you would implement this project from scratch!
+### Step 1: Setup Python
 
-## How to write a README
-A well written README file can enhance your project and portfolio.  Develop your abilities to create professional README files by completing [this free course](https://www.udacity.com/course/writing-readmes--ud777).
+Python 3 is needed. Python packages that you will use include numpy, matplotlib, OpenCV and scikit-video. Jupyter notebook will be used to display an image from **test_images/** as it is altered after each stage in my Python Pipeline. Finally, the pipeline will be run to process a sequence of frames from the **project_video.mp4** and save the altered video.
 
+Choose **Python 3 Anaconda** install package for your operating system. Download and install it.
+
+~~~bash
+conda create --name={project-name} python=3
+source activate {project-name}
+~~~
+
+### Step 2: Install OpenCV
+
+~~~bash
+pip install msgpack
+pip install opencv-contrib-python
+~~~
+
+### Step 3: Install scikit-video
+
+~~~bash
+pip install scikit-video
+~~~
+
+### Step 4: Open the project in Jupyter Notebook
+
+~~~bash
+jupyter notebook
+~~~
+ 
