@@ -10,6 +10,8 @@ The purpose of this project was to build an Advanced Lane Finding application fo
 
 To meet the specifications in the project, I followed these requirements: [project rubric](https://review.udacity.com/#!/rubrics/1966/view).
 
+## Video Result
+
 The output video is the result after running my pipeline on **project_video.mp4** and it can be found at this link: [project_video_mod.mp4](./data/output/video/project_video_mod.mp4). Feel free to download it.
 
 ## Contents
