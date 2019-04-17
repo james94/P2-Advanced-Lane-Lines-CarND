@@ -6,8 +6,7 @@ import pickle
 import glob
 import cv2
 import os
-# CameraCalibration class removes inherent distortions from the camera that can affect
-# its perception of the world
+# CameraCalibration class removes inherent distortions from the camera that can affect its perception of the world
 class CameraCalibration:
     def __init__(self, nx, ny, cam_cal_dfp):
         # nx = corners for a row
