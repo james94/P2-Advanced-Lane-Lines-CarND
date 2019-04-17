@@ -80,6 +80,21 @@ class CameraCalibration:
         # Apply Trasnparent API for hardware acceleration when read src path img
         #self.dist_img_m = cv2.UMat(cv2.imread(src_img_fpath, cv2.IMREAD_COLOR))
     
+    def rescale_img(self, width, height):
+        """
+            Downscale image resolution
+        """
+        # Checks if user provided dimensions greater than image dimension
+        if(width > self.dist_img_m.shape[1] and height > self.dist_img_m.shape[0]):
+            # Set dimension back to original image dimension
+            width = self.dist_img_m.shape[1]
+            height = self.dist_img_m.shape[0]
+        # Use smaller dimension
+        dim = (width, height)
+        self.dist_img_m = cv2.resize(
+            self.dist_img_m, dim, interpolation=cv2.INTER_AREA
+        )
+        
     def correct_distortion(self, mtx, dist_coeff, dist_img = None):
         """
         Apply Distortion Correction on an image by passing computed camera calibration
