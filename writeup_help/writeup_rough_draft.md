@@ -269,6 +269,9 @@ Links to Types of Camera Distortion:
 
 Learn how to use gradient thresholds and different color spaces to more easily identify lane markings on the road.
 
+## Concept
+
+
 
 ### Rubric Criteria & Specification
 
