@@ -1,6 +1,7 @@
 import matplotlib.image as mpimg
 import matplotlib.pyplot as plt
 import numpy as np
+import math
 import cv2
 import os
 
@@ -56,7 +57,29 @@ class LaneLineCurvature:
         
         # Returns radius of lane curvature
         return self.left_curverad_m, self.right_curverad_m, self.units_m
-        
+
+    def measure_angle_curvature(self, curve_type):
+        """
+            Calculates angle of curvature in degrees by using radius of
+            curvature computed in the measure_radius_curvature().
+        """
+        # While calculating angle of curvature, choose conversion.
+        # If radius of curvature is inches units, then choose "inches to feet"
+        # If radius of curvature is meters units, then choose "staying in meters"
+        conversion = "staying in meters"
+        self.curve_type_m = curve_type
+        if curve_type == "arc":
+            if conversion == "inches to feet":
+                # (100ft/(2*(pi)*radius_curvature_inches))*(12inches/1ft)*360deg
+                self.l_angle_curve_m = (100/(2*(np.pi)*self.left_curverad_m))*12*360
+                self.r_angle_curve_m = (100/(2*(np.pi)*self.right_curverad_m))*12*360
+            elif conversion == "staying in meters":
+                # (100m/(2*(pi)*radius_curvature_meters))*360deg
+                self.l_angle_curve_m = (100/(2*(np.pi)*self.left_curverad_m))*360
+                self.r_angle_curve_m = (100/(2*(np.pi)*self.right_curverad_m))*360                
+            self.angle_units_m = "(deg)"
+        # Returns angle of lane curvature in degrees
+        return self.l_angle_curve_m, self.r_angle_curve_m, self.angle_units_m    
 
     def display_radius_curvature(self, frame_title):
         """
@@ -68,6 +91,15 @@ class LaneLineCurvature:
 
         print("Right Lane Line Curvature Radius = %d %s" %(self.right_curverad_m, self.units_m))
         print("\n")
+
+    def display_angle_curvature(self, frame_title):
+        """
+            Displays to screen angle of lane curvature in degrees
+        """
+        print("Frame: %s" %(frame_title))
+        print("Left Lane Line Curvature Degrees = %d %s" %(self.l_angle_curve_m, self.angle_units_m))
+        print("Right Lane Line Curvature Degrees = %d %s" %(self.r_angle_curve_m, self.angle_units_m))
+        print("\n")       
         
     def save_img(self, dst_path, filename, dst_img):
         """

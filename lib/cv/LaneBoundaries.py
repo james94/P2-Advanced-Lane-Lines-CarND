@@ -55,6 +55,15 @@ class LaneBoundaries:
         self.right_curverad_m = right_curverad
         self.curverad_units_m = units
         
+    def set_lane_curvature_angle(self, l_angle_curve, r_angle_curve, units):
+        """
+            Sets left and right curvature radius and units, so it can be displayed
+            on lane boundaries image
+        """
+        self.l_angle_curve_m = l_angle_curve
+        self.r_angle_curve_m = r_angle_curve
+        self.angle_units_m = units        
+        
     def set_vehicle_position(self, dist_center, position_units, side_center):
         self.dist_center_m = dist_center
         self.units_m = position_units
@@ -103,7 +112,7 @@ class LaneBoundaries:
         # Combine the result with the original image for lane boundaries to appear
         self.result_m = cv2.addWeighted(self.undist_img_m, 1, newwarp, 0.3, 0)   
         
-    def overlay_lane_curvature(self):
+    def overlay_radius_curvature(self):
         """
             Adds Lane Curvature Radius text onto the overlayed lane boundaries image
         """
@@ -117,6 +126,20 @@ class LaneBoundaries:
         # Put lane curvature string onto image result
         cv2.putText(self.result_m, lane_curverad_str, (50, 50), self.font_family_m, self.font_size_m, self.font_color_m, self.font_thickness_m, self.line_type_m)
         
+    def overlay_angle_curvature(self):
+        """
+            Adds Lane Curvature Radius text onto the overlayed lane boundaries image
+        """
+        img_width = self.undist_img_m.shape[1]
+        img_heiht = self.undist_img_m.shape[0]
+        # Calculate lane curvature average
+        lane_curve_angle_avg = (self.l_angle_curve_m + self.r_angle_curve_m)/2
+        # Set lane curvature radius average in string
+        lane_curve_angle_str = "Lane Curvature Angle = {:.0f} {}".format(lane_curve_angle_avg, self.angle_units_m)
+        
+        # Put lane curvature string onto image result
+        cv2.putText(self.result_m, lane_curve_angle_str, (50, 150), self.font_family_m, self.font_size_m, self.font_color_m, self.font_thickness_m, self.line_type_m)
+        
     def overlay_vehicle_position(self):
         """
             Adds text for Vehicle Position with respect to center of the lane
@@ -126,7 +149,7 @@ class LaneBoundaries:
         vehicle_position_str = "Vehicle is {:.2f} {} {}".format(self.dist_center_m, self.units_m, self.side_center_m)
         
         # Put vehicle position string onto image result
-        cv2.putText(self.result_m, vehicle_position_str, (50, 150), self.font_family_m, self.font_size_m, self.font_color_m, self.font_thickness_m, self.line_type_m)
+        cv2.putText(self.result_m, vehicle_position_str, (50, 250), self.font_family_m, self.font_size_m, self.font_color_m, self.font_thickness_m, self.line_type_m)
         
     def get_overlayed_image(self):
         """
