@@ -131,7 +131,7 @@ Recommended: Use 20 (9x6 corners) chessboard images (at 720p resolution) to get 
 2\. Finding Corners
 
 For a chessboard image, count the number of corners in any row and enter that value for `nx`.
-Then count the number of orners in a given column and store that value for `ny`.
+Then count the number of corners in a given column and store that value for `ny`.
 
 Use OpenCV functions to auto find and draw corners in an image of a chessboard pattern.
 
@@ -271,7 +271,25 @@ Learn how to use gradient thresholds and different color spaces to more easily i
 
 ## Concept
 
+### Gradient Threshold
 
+### Sobel Operator
+
+### Magnitude of Gradient
+
+### Direction of Gradient
+
+### Combining Thresholds
+
+### Color Spaces
+
+### Color Thresholding
+
+### HLS Intuitions
+
+### HLS and Color Thresholds
+
+### Color and Gradient
 
 ### Rubric Criteria & Specification
 
