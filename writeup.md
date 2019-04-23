@@ -250,7 +250,7 @@ In **Figure 19**, the unwarped image contains the following information: lane bo
 
 ## Pipeline (video)
 
-After verifying my image processing pipeline finds lane lines in all the test images, I tested it on the **project_video.mp4**. The output was a new video where the lanes are identified, radius of curvature and vehicle position within the lane was calculated in every frame. The result video is the pipeline correctly mapped out the curved lines and didn't fail when shadows or pavement color changes were present. The output video is available at hyperlink: **[Advanced Lane Finding Demo](https://youtu.b/y17NUSa4Sfo)**
+After verifying my image processing pipeline finds lane lines in all the test images, I tested it on the **project_video.mp4**. The output was a new video where the lanes are identified, radius of curvature and vehicle position within the lane was calculated in every frame. The result video is the pipeline correctly mapped out the curved lines and didn't fail when shadows or pavement color changes were present. The output video is available at hyperlink: **[Advanced Lane Finding Demo](https://www.youtube.com/watch?v=yI7NUSa4Sfo)**
 
 ## Discussion
 
