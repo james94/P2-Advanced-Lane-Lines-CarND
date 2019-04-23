@@ -265,3 +265,10 @@ My pipeline occasionally produces the radius of lane curvature that is not simil
 `What could you do to make it more robust?`
 
 To make my implementation more robust, I can incorporate sanity check to check to make sure each lane line has similar curvature. I can also check to make sure the left and right lane are separated by approximating the right distance horizontally. Finally, I could also check that the lane lines are parallel to verify they are heading toward the same direction.
+
+## References
+
+- Udacity, Self-Driving Car, Lesson 7 - Camera Calibration
+- Udacity, Self-Driving Car, Lesson 8 - Gradients and Color Spaces
+- Udacity, Self-Driving Car, Lesson 9 - Advanced Computer Vision
+- Udacity, Self-Driving Car, Project: Advanced Lane Finding
