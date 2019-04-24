@@ -12,7 +12,7 @@ To meet the specifications in the project, I followed these requirements: [proje
 
 ## Video Result
 
-The output video is the result after running my pipeline on **project_video.mp4** and it can be found at this link: [project_video_mod.mp4](./data/output/video/project_video_mod.mp4). Feel free to download it.
+The output video is the result after running my pipeline on **project_video.mp4** and it can be found at this link: [project_video_mod.mp4](https://www.youtube.com/watch?v=yI7NUSa4Sfo). Feel free to download it.
 
 ## Contents
 

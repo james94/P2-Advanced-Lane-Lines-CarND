@@ -16,7 +16,7 @@ The purpose of camera calibration is to compute the transformation between 3D ob
 
 `How did you compute the camera matrix and distortion coefficients?`
 
-I used 20 calibration 9x6 chessboard images at 720p resolution. Then, I computed the camera matrix and distortion coefficients by using OpenCV function **cv2.calibrateCamera()**. This function requires passing in as arguments, object points, image points and image size. Object points are the 3D coordinates (x,y,z) of the corners in the image. Image points are the 2D coordinates (x,y) of the corners in the image. The corners in the image with 2D coordinates was found using OpenCV function **cv2.findChessboardCorners()**. The image size is the width and height of the image. The methods to perform the steps to compute camera calibration can be found in my **[CameraCalibration](./lib/cv/CameraCalibration.py)** class.
+I used 20 calibration 9x6 chessboard images at 720p resolution. Then, I computed the camera matrix and distortion coefficients by using OpenCV function **cv2.calibrateCamera()**. This function requires passing in as arguments, object points, image points and image size. Object points are the 3D coordinates (x,y,z) of the corners in the image. Image points are the 2D coordinates (x,y) of the corners in the image. The corners in the image with 2D coordinates were found using OpenCV function **cv2.findChessboardCorners()**. The image size is the width and height of the image. The methods to perform the steps to compute camera calibration can be found in my **[CameraCalibration](./lib/cv/CameraCalibration.py)** class.
 
 `Provide an example of a distortion corrected calibration image.`
 
@@ -24,11 +24,11 @@ The camera distortion matrix was used with OpenCV function **cv2.undistort()** t
 
 ![chess_img_prior](./data/input/image/camera_cal/calibration3.jpg)
 
-**Figure 1: Prior to distortion correction applied on calibration3.jpg**
+**Figure 1:** Prior to distortion correction applied on calibration3.jpg
 
 ![chess_img_after](./data/output/image/pipeline/distortion_correction/calibration3.jpg)
 
-**Figure 2: distortion correction applied on calibration3.jpg**
+**Figure 2:** distortion correction applied on calibration3.jpg
 
 **Figure 1** and **Figure 2** are a before and after look at image distortion correction applied on **calibration3.jpg** image.
 
@@ -36,19 +36,17 @@ The camera distortion matrix was used with OpenCV function **cv2.undistort()** t
 
 ### Distortion Correction
 
-**Rubric Criteria**
-
 `Provide an example of a distortion-corrected image`
 
 Here you will see a before and after look at distortion correction applied to a road image from the **test_images** folder.
 
 ![road_img_prior](./data/input/image/test_images/test5.jpg)
 
-**Figure 3: Before distortion correction applied on road image test5.jpg**
+**Figure 3:** Before distortion correction applied on road image test5.jpg
 
 ![road_img_after](./data/output/image/pipeline/distortion_correction/test5.jpg)
 
-**Figure 4: After distortion correction applied on road image test5.jpg**
+**Figure 4:** After distortion correction applied on road image test5.jpg
 
 Therefore, we can see distortion correction that was calculated via camera calibration has been correctly applied to each image.
 
@@ -62,9 +60,9 @@ I combined Sobel X, Gradient Magnitude and Gradient Direction to create a binary
 
 ![road_img_gradients](./data/output/image/pipeline/gradient_threshold/combined_gradient/test5.jpg)
 
-**Figure 5: Combined Gradient Thresholded Binary Image**
+**Figure 5:** Combined Gradient Thresholded Binary Image
 
-In the above image, we see the binary image **test5.jpg** with combined gradients that detected lane pixels pointing in the y direction.
+In **Figure 5**, we see the binary image **test5.jpg** with combined gradients that detected lane pixels pointing in the y direction.
 
 ### Combined RGB Threshold
 
@@ -72,9 +70,9 @@ I combined R, G, B channels to create a binary image containing white lane line 
 
 ![road_img_rgb_white](./data/output/image/pipeline/color_threshold/rgb/comb_rgb/test5.jpg)
 
-**Figure 6: Combined RGB Thresholded Binary Image**
+**Figure 6:** Combined RGB Thresholded Binary Image
 
-In the above image, we see the binary image **test5.jpg** with combined RGB that detected white lane line pixels.
+In **Figure 6**, we see the binary image **test5.jpg** with combined RGB that detected white lane line pixels.
 
 ### Combined HLS Threshold
 
@@ -82,7 +80,9 @@ I combined H, L, S channels to create a binary image containing yellow lane line
 
 ![road_img_hls_yellow](./data/output/image/pipeline/color_threshold/hls/comb_all_hls/test5.jpg)
 
-**Figure 7: Combined HLS Thresholded Binary Image**
+**Figure 7:** Combined HLS Thresholded Binary Image
+
+In **Figure 7**, we see the binary image **test5.jpg** with combined HLS that detected yellow lane line pixels.
 
 ### Combined Gradient, RGB & HLS Threshold
 
@@ -90,11 +90,11 @@ I combined Gradient, RGB and HLS binary images to create a binary image containi
 
 ![stack_grad_color](./data/output/image/pipeline/gradient_color_threshold/stacked_grad_hls_rgb/test5.jpg)
 
-**Figure 8: Stacked Gradient + Color Thresholded Binary Image**
+**Figure 8:** Stacked Gradient + Color Thresholded Binary Image
 
 ![comb_grad_color](./data/output/image/pipeline/gradient_color_threshold/combined_grad_hls_rgb/test5.jpg)
 
-**Figure 9: Combined Gradient + Color Thresholded Binary Image**
+**Figure 9:** Combined Gradient + Color Thresholded Binary Image
 
 **Figure 8** is a stacked image with green being the combined gradient threshold component and blue being the combined color (RGB, HLS) threshold component. **Figure 9** is a combined binary image of gradient, RGB and HLS.
 
@@ -110,7 +110,7 @@ I performed perspective transform by choosing 4 source points to form a trapezoi
 
 ![birds_eye_view](./data/output/image/pipeline/perspective_transform/destination_points/test5.jpg)
 
-**Figure 10: Bird's Eye View Transformed Image on Right**
+**Figure 10:** Bird's Eye View Transformed Image on Right
 
 **Figure 10** shows two images. On the left is the original image and the right is the bird's eye view transformation applied. You can also see the source points drawn on the left image and the destination points drawn on the right image.
 
@@ -122,11 +122,11 @@ I identified lane line pixels using **histogram peaks**, **sliding window** sear
 
 ### Explanation of Histogram Peaks
 
-I needed to find where a lane line starts in the image, so I used **histogram peaks** method to determine which pixels are part of the lane lines. which sums up the pixels per column in the image and generates a histogram peak. The highest peak represents where each lane line starts.
+I needed to find where a lane line starts in the image, so I used **histogram peaks** method to determine which pixels belong to a particular lane line. The highest peak represents where each lane line starts and the peak is calculated by summing up the pixels per column in the image.
 
 ![histogram_peaks](./data/output/image/pipeline/detect_lane_lines/lanes_and_hist/test5.jpg)
 
-**Figure 11: Histogram Peaks of Bird's Eye View Image**
+**Figure 11:** Histogram Peaks of Bird's Eye View Image
 
 In **Figure 11**, on the left is the bird's eye view image and on the right is the histogram peaks, which indicate where the lane lines start.
 
@@ -136,7 +136,7 @@ I chose n amount of windows to track curvature of a lane line. I found the bound
 
 ![sliding_windows_drawn](./data/output/image/pipeline/detect_lane_lines/sliding_windows/test5.jpg)
 
-**Figure 12: Sliding Windows Drawn on Bird's Eye View Image**
+**Figure 12:** Sliding Windows Drawn on Bird's Eye View Image
 
 In **Figure 12**, green sliding windows are drawn for the left and right lane lines from where they start to where they are going.
 
@@ -148,7 +148,7 @@ After finding all pixels belonging to each line using the sliding window search 
 
 ![fit_polynomial](./data/output/image/pipeline/detect_lane_lines/fit_polynomials/test5.jpg)
 
-**Figure 13: Fit Polynomial on Lane Lines**
+**Figure 13:** Fit Polynomial on Lane Lines
 
 In **Figure 13**, a yellow polynomial is fitted to the left lane line and right lane line.
 
@@ -158,9 +158,9 @@ In **Figure 13**, a yellow polynomial is fitted to the left lane line and right 
 
 ![search_from_prior](./data/output/image/pipeline/detect_lane_lines/search_from_prior/test5.jpg)
 
-**Figure 14: Search from Prior Polynomial drawn onto next Image**
+**Figure 14:** Search from Prior Polynomial drawn onto next Image
 
-In **Figure 14**, a yellow fit polynomial for the left and right lane line from the previous frame is drawn on the current frame.
+In **Figure 14**, a yellow fit polynomial for the left and right lane line from the previous frame is drawn on the current frame. The image shows the previous fit polynomial to lane line is slightly off compared to where the current lane line is going. However, for the current frame and the previous frame, the fit polynomial is close enough.
 
 ### Lane Curvature & Vehicle Position
 
@@ -168,7 +168,7 @@ In **Figure 14**, a yellow fit polynomial for the left and right lane line from 
 
 `How did you calculate radius of lane curvature?`
 
-I calculated the [radius of lane curvature](intmath.com/applications-differentiation/8-radius-curvature.php) by substituting the first and second derivative from the second order polynomial into Rcurve equation. So, the simplified equation for radius of curvature that I used was:
+I calculated the [radius of lane curvature](https://www.intmath.com/applications-differentiation/8-radius-curvature.php) by substituting the first and second derivative from the second order polynomial into Rcurve equation. So, the simplified equation for radius of curvature that I used was:
 
 ~~~
 Rcurve = ((1 + (2Ay + B)^2)^(3/2))/(|2A|)
@@ -198,7 +198,7 @@ After computing the radius of lane curvature, I can convert pixel space to real 
 
 ![lane_curvature_radius](./data/output/image/pipeline/lane_perception/lane_curvature/radius/test5.jpg)
 
-**Figure 15: Radius of Lane Curvature drawn onto Image**
+**Figure 15:** Radius of Lane Curvature drawn onto Image
 
 In **Figure 15**, you can see the computation for average radius of lane curvature between the left and right lane line. I will discuss how I drew the lane boundaries soon.
 
@@ -209,14 +209,14 @@ In **Figure 15**, you can see the computation for average radius of lane curvatu
 I calculated the angle of lane curvature by passing in the radius of lane curvature into my angle of lane curvature equation:
 
 ~~~
-angle_curve = (100meters/(2*pi*radius_curve meters))*360degrees
+angle_curve = (100 meters/(2*pi*radius_curve meters))*360degrees
 ~~~
 
 When we calculate degree of lane curvature, the arc length of the circle is typically 100 meters or 100 feet. The video source of how I learned to calculate angle of curvature is [Advanced Geomatics: Degree of Curvature](https://www.youtube.com/watch?v=vki6Jf1HPG4). All the code used to calculate lane curvature can be found in my **[LaneLineCurvature](./lib/cv/LaneLineCurvature.py)** class.
 
 ![lane_curvature_angle](./data/output/image/pipeline/lane_perception/lane_curvature/angle/test5.jpg)
 
-**Figure 16: Angle of Lane Curvature drawn onto Image**
+**Figure 16:** Angle of Lane Curvature drawn onto Image
 
 ### Vehicle Position with Respect to Center of Lane
 
@@ -226,7 +226,7 @@ I assumed the camera was mounted at the center of the car, so I can divide the i
 
 ![vehicle_position_center](./data/output/image/pipeline/lane_perception/vehicle_position/test5.jpg)
 
-**Figure 17: Vehicle Position with Respect to Center of Lane**
+**Figure 17:** Vehicle Position with Respect to Center of Lane
 
 In **Figure 17**, I pointed out that the vehicle is a certain number of meters left or right of center of the lane.
 
@@ -238,25 +238,25 @@ In **Figure 15 - 17**, I showed images with the lane area identified clearly, bu
 
 ![lane_boundary](./data/output/image/pipeline/lane_perception/lane_boundary/test5.jpg)
 
-**Figure 18: Lane boundary highlighted in green**
+**Figure 18:** Lane boundary highlighted in green
 
 In **Figure 18**, the lane boundary is highlighted in green.
 
 ![lane_result](./data/output/image/pipeline/lane_perception/vehicle_position/test5.jpg)
 
-**Figure 19: Lane boundary, curvature and vehicle position**
+**Figure 19:** Lane boundary, curvature and vehicle position
 
-In **Figure 19**, the unwarped image contains the following information: lane boundary highlighted, radius of lane curvature, angle of lane curvature and vehicle position with respect to center of the lane.
+In **Figure 19**, the unwarped image contains the following information: lane boundary highlighted, radius of lane curvature, angle of lane curvature and vehicle position with respect to center of the lane. To add text to an image, I used **cv2.putText()**.
 
 ## Pipeline (video)
 
-After verifying my image processing pipeline finds lane lines in all the test images, I tested it on the **project_video.mp4**. The output was a new video where the lanes are identified, radius of curvature and vehicle position within the lane was calculated in every frame. The result video is the pipeline correctly mapped out the curved lines and didn't fail when shadows or pavement color changes were present. The output video is available at hyperlink: **[Advanced Lane Finding Demo](https://www.youtube.com/watch?v=yI7NUSa4Sfo)**
+After verifying my image processing pipeline finds lane lines in all the test images, I tested it on the **project_video.mp4**. The output was a new video where the lanes are identified, radius of lane curvature and vehicle position within the lane were calculated in every frame. The result video is the pipeline correctly mapped out the curved lines and didn't fail when shadows or pavement color changes were present. The output video is available at hyperlink: **[Advanced Lane Finding Demo](https://www.youtube.com/watch?v=yI7NUSa4Sfo)**
 
 ## Discussion
 
 `Any problems faced in your implementation of this project?`
 
-Initially, I tested my implementation on lane image **test5.jpg** and verified it worked successfully meeting the criteria for image processing. However, when I tested my implementation on the **project_video.mp4**, my result failed to stay within highlighting only the lane boundary area. It also highlighted on the left outside the yellow lane. So, I needed to test my implementation on all test images. Eventually, I was able to produce the results needed by the criteria. Toward the end of the project, I was adjusting my color and gradient thresholding to create a final binary image because it majorily impacted the lane boundary being properly highlighted.
+Initially, I tested my implementation on lane image **test5.jpg** and verified it worked successfully meeting the criteria for image processing. However, when I tested my implementation on the **project_video.mp4**, my result failed to stay within highlighting only the lane boundary area. It also highlighted on the left outside the yellow lane. So, I needed to test my implementation on all test images. Eventually, I was able to produce the results needed by the criteria. Toward the end of the project, I was adjusting my color and gradient thresholding to create a final binary image because it majorly impacted the lane boundary being properly highlighted.
 
 `Where will your pipeline likely fail?`
 
